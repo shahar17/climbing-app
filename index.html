@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Climb Plan" />
+  <meta name="theme-color" content="#111827" />
+  <title>Climb Plan</title>
+  <style>
+    :root{--bg:#0b1020;--card:#151b2e;--muted:#9ca3af;--text:#f9fafb;--accent:#8b5cf6;--good:#22c55e;--warn:#f59e0b;--line:#273149}
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(160deg,#080c18,#111827);color:var(--text);padding:18px 14px 80px}
+    .app{max-width:760px;margin:auto}.hero{padding:22px 16px;border-radius:24px;background:linear-gradient(135deg,#7c3aed,#111827);box-shadow:0 18px 40px #0008}.hero h1{margin:0 0 6px;font-size:28px}.hero p{margin:0;color:#ddd}
+    .tabs{display:flex;gap:8px;margin:16px 0;position:sticky;top:0;background:#0b1020ee;padding:8px 0;z-index:2}.tabs button{flex:1;border:1px solid var(--line);background:#111827;color:var(--text);padding:11px;border-radius:14px;font-weight:700}.tabs button.active{background:var(--accent);border-color:var(--accent)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 10px 30px #0005}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.muted{color:var(--muted);font-size:14px}.tag{font-size:12px;padding:5px 8px;border-radius:99px;background:#273149;color:#d1d5db}.done{background:#052e16;border-color:#166534}.done .tag{background:#14532d;color:#bbf7d0}
+    h2{font-size:20px;margin:20px 0 8px} h3{margin:0 0 8px;font-size:18px}.ex{padding:12px 0;border-top:1px solid var(--line)}.ex:first-child{border-top:0}.ex b{display:block}.small{font-size:13px;color:var(--muted);margin-top:3px}
+    input,select,textarea{width:100%;border:1px solid var(--line);background:#0b1020;color:var(--text);border-radius:12px;padding:11px;font-size:16px;margin:5px 0 10px}textarea{min-height:70px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;background:var(--accent);color:white;border-radius:14px;padding:12px 14px;font-weight:800;width:100%}.btn.secondary{background:#273149}.btn.green{background:#16a34a}.history{font-size:14px;line-height:1.45}.empty{color:var(--muted);text-align:center;padding:20px}.bar{height:10px;background:#263149;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:var(--good)}
+    @media(max-width:520px){.grid{grid-template-columns:1fr}.hero h1{font-size:25px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <h1>Climbing Training</h1>
+    <p>3 sessions/week while recovering. No Sunday climbing. Track everything fast.</p>
+  </section>
+
+  <div class="tabs">
+    <button class="active" onclick="show('plan',this)">Plan</button>
+    <button onclick="show('log',this)">Record</button>
+    <button onclick="show('progress',this)">Progress</button>
+  </div>
+
+  <main id="plan"></main>
+
+  <main id="log" style="display:none">
+    <h2>Record workout</h2>
+    <div class="card">
+      <label>Session</label>
+      <select id="session"><option>Session A - Strength + boulder</option><option>Session B - Lead endurance</option><option>Session C - Power endurance + Technogym</option></select>
+      <div class="grid">
+        <div><label>Weighted pull-up: weight for 3 reps</label><input id="wpu" type="number" placeholder="kg added" /></div>
+        <div><label>Fast pull-ups</label><input id="fast" type="number" value="5" /></div>
+        <div><label>Hangboard edge / weight</label><input id="hang" placeholder="20mm +5kg / bodyweight" /></div>
+        <div><label>Best climb today</label><input id="best" placeholder="7a / V5 / project" /></div>
+      </div>
+      <label>Pump / difficulty</label><select id="rpe"><option>Easy</option><option>Medium</option><option>Hard</option><option>Very hard</option></select>
+      <label>Notes / pain / what improved</label><textarea id="notes" placeholder="Short note..."></textarea>
+      <button class="btn green" onclick="saveLog()">Save workout</button>
+    </div>
+  </main>
+
+  <main id="progress" style="display:none">
+    <h2>Progress</h2>
+    <div id="summary"></div>
+    <div class="card"><button class="btn secondary" onclick="exportData()">Export data</button></div>
+    <div id="history"></div>
+  </main>
+</div>
+
+<script>
+const workouts=[
+{day:'Monday or Tuesday',title:'Session A - Strength + boulder',focus:'Finger strength + limit bouldering',items:[
+['Warm-up','15 min easy climbing + shoulder activation'],['Hangboard','7 sec hang / 53 sec rest × 3 hangs × 3 sets. Half crimp, safe edge. Stop if injury pain.'],['Limit bouldering','60–75 min. Problems needing 3–5 serious attempts. Long rests.'],['Weighted pull-ups','3 reps with maximal safe added weight. 3 sets. Rest 3 min.'],['Fast pull-ups','5 explosive pull-ups. 3 sets. Full control, no sloppy reps.'] ]},
+{day:'Wednesday or Thursday',title:'Session B - Lead endurance',focus:'7a→7b route fitness',items:[
+['ARC / easy volume','20–30 min easy continuous climbing OR many easy routes. Mild pump only.'],['Route mileage','4–8 routes around 6b–6c+. Focus relaxed grip, feet, breathing, clipping.'],['Optional core','Dead bug / hollow hold / side plank, 2–3 easy sets.'] ]},
+{day:'Friday or Saturday',title:'Session C - Power endurance + Technogym',focus:'Pump resistance + climbing-specific strength',items:[
+['Power endurance','4×4 boulders OR 4–6 route intervals of 30–50 moves. Finish pumped.'],['Technogym isometric','Lock-off holds at 120°, 90°, 45°. 5–10 sec × 3 rounds.'],['Technogym power','Explosive row or pulldown. 3–5 reps × 3–5 sets.'],['Technogym no inertia','Controlled row/pulldown, 2–3 sets of 8–10 for scapular control.'] ]}
+];
+function renderPlan(){document.getElementById('plan').innerHTML='<h2>This week</h2>'+workouts.map((w,i)=>`<div class="card" id="w${i}"><div class="row"><div><h3>${w.title}</h3><div class="muted">${w.day} · ${w.focus}</div></div><span class="tag">Session ${i+1}</span></div><div>${w.items.map(x=>`<div class="ex"><b>${x[0]}</b><div class="small">${x[1]}</div></div>`).join('')}</div><button class="btn" onclick="quickDone(${i})">Mark done</button></div>`).join('')}
+function show(id,btn){['plan','log','progress'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(id==='progress')renderProgress()}
+function logs(){return JSON.parse(localStorage.climbLogs||'[]')} function setLogs(x){localStorage.climbLogs=JSON.stringify(x)}
+function saveLog(extra={}){const entry={date:new Date().toLocaleDateString(),session:document.getElementById('session').value,wpu:document.getElementById('wpu').value,fast:document.getElementById('fast').value,hang:document.getElementById('hang').value,best:document.getElementById('best').value,rpe:document.getElementById('rpe').value,notes:document.getElementById('notes').value,...extra};let l=logs();l.unshift(entry);setLogs(l);alert('Saved');renderProgress()}
+function quickDone(i){document.getElementById('session').value=workouts[i].title;saveLog({quick:true,session:workouts[i].title})}
+function renderProgress(){let l=logs();let week=l.slice(0,7).length;let maxW=Math.max(0,...l.map(x=>Number(x.wpu)||0));document.getElementById('summary').innerHTML=`<div class="card"><h3>Weekly consistency</h3><div class="muted">Goal: 3 sessions/week</div><div class="bar"><span style="width:${Math.min(100,week/3*100)}%"></span></div><p>${Math.min(week,3)}/3 sessions logged recently</p><p><b>Best weighted pull-up:</b> ${maxW?maxW+' kg':'not logged yet'}</p></div>`;document.getElementById('history').innerHTML=l.length?l.map(x=>`<div class="card history"><b>${x.date} · ${x.session}</b><p>${x.best?`Best: ${x.best}<br>`:''}${x.wpu?`Weighted pull-up 3RM: ${x.wpu} kg<br>`:''}${x.fast?`Fast pull-ups: ${x.fast}<br>`:''}${x.hang?`Hangboard: ${x.hang}<br>`:''}Difficulty: ${x.rpe||''}</p><div class="muted">${x.notes||''}</div></div>`).join(''):'<div class="empty">No workouts yet.</div>'}
+function exportData(){const blob=new Blob([JSON.stringify(logs(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='climbing-progress.json';a.click()}
+renderPlan();
+</script>
+</body>
+</html>
