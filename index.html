@@ -22,7 +22,7 @@
 <div class="app">
   <section class="hero">
     <h1>Climbing Training</h1>
-    <p>3 sessions/week while recovering. No Sunday climbing. Track everything fast.</p>
+    <p>3 sessions/week while recovering. No Sunday climbing. Main lead focus: power endurance.</p>
   </section>
 
   <div class="tabs">
@@ -37,13 +37,14 @@
     <h2>Record workout</h2>
     <div class="card">
       <label>Session</label>
-      <select id="session"><option>Session A - Strength + boulder</option><option>Session B - Lead endurance</option><option>Session C - Power endurance + Technogym</option></select>
+      <select id="session"><option>Session A - Limit bouldering + strength</option><option>Session B - Lead volume</option><option>Session C - Power endurance</option></select>
       <div class="grid">
         <div><label>Weighted pull-up: weight for 3 reps</label><input id="wpu" type="number" placeholder="kg added" /></div>
         <div><label>Fast pull-ups</label><input id="fast" type="number" value="5" /></div>
         <div><label>Hangboard edge / weight</label><input id="hang" placeholder="20mm +5kg / bodyweight" /></div>
         <div><label>Best climb today</label><input id="best" placeholder="7a / V5 / project" /></div>
       </div>
+      <label>Power endurance test</label><input id="pe" placeholder="4x4 completed / route intervals / moves before pump" />
       <label>Pump / difficulty</label><select id="rpe"><option>Easy</option><option>Medium</option><option>Hard</option><option>Very hard</option></select>
       <label>Notes / pain / what improved</label><textarea id="notes" placeholder="Short note..."></textarea>
       <button class="btn green" onclick="saveLog()">Save workout</button>
@@ -60,19 +61,19 @@
 
 <script>
 const workouts=[
-{day:'Monday or Tuesday',title:'Session A - Strength + boulder',focus:'Finger strength + limit bouldering',items:[
-['Warm-up','15 min easy climbing + shoulder activation'],['Hangboard','7 sec hang / 53 sec rest × 3 hangs × 3 sets. Half crimp, safe edge. Stop if injury pain.'],['Limit bouldering','60–75 min. Problems needing 3–5 serious attempts. Long rests.'],['Weighted pull-ups','3 reps with maximal safe added weight. 3 sets. Rest 3 min.'],['Fast pull-ups','5 explosive pull-ups. 3 sets. Full control, no sloppy reps.'] ]},
-{day:'Wednesday or Thursday',title:'Session B - Lead endurance',focus:'7a→7b route fitness',items:[
-['ARC / easy volume','20–30 min easy continuous climbing OR many easy routes. Mild pump only.'],['Route mileage','4–8 routes around 6b–6c+. Focus relaxed grip, feet, breathing, clipping.'],['Optional core','Dead bug / hollow hold / side plank, 2–3 easy sets.'] ]},
-{day:'Friday or Saturday',title:'Session C - Power endurance + Technogym',focus:'Pump resistance + climbing-specific strength',items:[
-['Power endurance','4×4 boulders OR 4–6 route intervals of 30–50 moves. Finish pumped.'],['Technogym isometric','Lock-off holds at 120°, 90°, 45°. 5–10 sec × 3 rounds.'],['Technogym power','Explosive row or pulldown. 3–5 reps × 3–5 sets.'],['Technogym no inertia','Controlled row/pulldown, 2–3 sets of 8–10 for scapular control.'] ]}
+{day:'Monday or Tuesday',title:'Session A - Limit bouldering + strength',focus:'Boulder strength without Technogym',items:[
+['Warm-up','15 min easy climbing + shoulder activation. Add progressive easy boulders.'],['Hangboard','Only if injury allows: 7 sec hang / 53 sec rest × 3 hangs × 3 sets. Half crimp, safe edge. Stop if injury pain.'],['Limit bouldering','60–90 min. Problems needing 3–5 serious attempts. Long rests. Quality over volume.'],['Weighted pull-ups','3 reps with maximal safe added weight. 3 sets. Rest 3 min.'],['Fast pull-ups','5 explosive pull-ups. 3 sets. Stop before reps get sloppy.'],['Done','No Technogym on this day. Go home while still recovering well.'] ]},
+{day:'Wednesday or Thursday',title:'Session B - Lead volume',focus:'Efficiency, relaxed climbing, route fitness',items:[
+['Easy volume','6–10 routes, mostly 6b–6c+. Keep pump controlled.'],['Technique focus','Relaxed grip, quiet feet, breathing, clipping from good positions, finding rests.'],['Lead-specific tracking','Note: when did pump start? Which clipping/rest positions worked? Did you fall from power or fatigue?'],['Optional core','Dead bug / hollow hold / side plank, 2–3 easy sets.'] ]},
+{day:'Friday or Saturday',title:'Session C - Power endurance',focus:'Main 7a→7b priority',items:[
+['4×4 boulders','Choose 4 problems around V2–V3. Climb all 4 with almost no rest. Rest 4 min. Repeat 4 rounds.'],['OR route intervals','4–6 intervals of 30–50 moves or one ~6c route. Rest 2 min between rounds.'],['Rule','For now choose either 4×4 OR route intervals, not both. Finish pumped but not injured.'],['Optional easy cooldown','10–15 min easy climbing + forearm shakeouts.'] ]}
 ];
 function renderPlan(){document.getElementById('plan').innerHTML='<h2>This week</h2>'+workouts.map((w,i)=>`<div class="card" id="w${i}"><div class="row"><div><h3>${w.title}</h3><div class="muted">${w.day} · ${w.focus}</div></div><span class="tag">Session ${i+1}</span></div><div>${w.items.map(x=>`<div class="ex"><b>${x[0]}</b><div class="small">${x[1]}</div></div>`).join('')}</div><button class="btn" onclick="quickDone(${i})">Mark done</button></div>`).join('')}
 function show(id,btn){['plan','log','progress'].forEach(x=>document.getElementById(x).style.display=x===id?'block':'none');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(id==='progress')renderProgress()}
 function logs(){return JSON.parse(localStorage.climbLogs||'[]')} function setLogs(x){localStorage.climbLogs=JSON.stringify(x)}
-function saveLog(extra={}){const entry={date:new Date().toLocaleDateString(),session:document.getElementById('session').value,wpu:document.getElementById('wpu').value,fast:document.getElementById('fast').value,hang:document.getElementById('hang').value,best:document.getElementById('best').value,rpe:document.getElementById('rpe').value,notes:document.getElementById('notes').value,...extra};let l=logs();l.unshift(entry);setLogs(l);alert('Saved');renderProgress()}
+function saveLog(extra={}){const entry={date:new Date().toLocaleDateString(),session:document.getElementById('session').value,wpu:document.getElementById('wpu').value,fast:document.getElementById('fast').value,hang:document.getElementById('hang').value,best:document.getElementById('best').value,pe:document.getElementById('pe').value,rpe:document.getElementById('rpe').value,notes:document.getElementById('notes').value,...extra};let l=logs();l.unshift(entry);setLogs(l);alert('Saved');renderProgress()}
 function quickDone(i){document.getElementById('session').value=workouts[i].title;saveLog({quick:true,session:workouts[i].title})}
-function renderProgress(){let l=logs();let week=l.slice(0,7).length;let maxW=Math.max(0,...l.map(x=>Number(x.wpu)||0));document.getElementById('summary').innerHTML=`<div class="card"><h3>Weekly consistency</h3><div class="muted">Goal: 3 sessions/week</div><div class="bar"><span style="width:${Math.min(100,week/3*100)}%"></span></div><p>${Math.min(week,3)}/3 sessions logged recently</p><p><b>Best weighted pull-up:</b> ${maxW?maxW+' kg':'not logged yet'}</p></div>`;document.getElementById('history').innerHTML=l.length?l.map(x=>`<div class="card history"><b>${x.date} · ${x.session}</b><p>${x.best?`Best: ${x.best}<br>`:''}${x.wpu?`Weighted pull-up 3RM: ${x.wpu} kg<br>`:''}${x.fast?`Fast pull-ups: ${x.fast}<br>`:''}${x.hang?`Hangboard: ${x.hang}<br>`:''}Difficulty: ${x.rpe||''}</p><div class="muted">${x.notes||''}</div></div>`).join(''):'<div class="empty">No workouts yet.</div>'}
+function renderProgress(){let l=logs();let week=l.slice(0,7).length;let maxW=Math.max(0,...l.map(x=>Number(x.wpu)||0));document.getElementById('summary').innerHTML=`<div class="card"><h3>Weekly consistency</h3><div class="muted">Goal: 3 sessions/week</div><div class="bar"><span style="width:${Math.min(100,week/3*100)}%"></span></div><p>${Math.min(week,3)}/3 sessions logged recently</p><p><b>Best weighted pull-up:</b> ${maxW?maxW+' kg':'not logged yet'}</p></div>`;document.getElementById('history').innerHTML=l.length?l.map(x=>`<div class="card history"><b>${x.date} · ${x.session}</b><p>${x.best?`Best: ${x.best}<br>`:''}${x.wpu?`Weighted pull-up 3RM: ${x.wpu} kg<br>`:''}${x.fast?`Fast pull-ups: ${x.fast}<br>`:''}${x.hang?`Hangboard: ${x.hang}<br>`:''}${x.pe?`Power endurance: ${x.pe}<br>`:''}Difficulty: ${x.rpe||''}</p><div class="muted">${x.notes||''}</div></div>`).join(''):'<div class="empty">No workouts yet.</div>'}
 function exportData(){const blob=new Blob([JSON.stringify(logs(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='climbing-progress.json';a.click()}
 renderPlan();
 </script>
